@@ -6,9 +6,18 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    Relation,
+    ManyToOne,
+    ManyToMany,
+    JoinTable,
+    OneToMany,
 } from 'typeorm';
 
 import { PostBodyType } from '../constants';
+
+import { CategoryEntity } from './category.entity';
+import { CommentEntity } from './comment.entity';
+import { TagEntity } from './tag.entity';
 
 @Exclude()
 @Entity('content_posts')
@@ -66,4 +75,24 @@ export class PostEntity extends BaseEntity {
         comment: '更新时间',
     })
     updatedAt: Date;
+
+    // 文章与分类 多对一
+    @Expose()
+    @ManyToOne(() => CategoryEntity, (category) => category.posts, {
+        nullable: true,
+        onDelete: 'SET NULL',
+    })
+    category: Relation<CategoryEntity>;
+
+    @Expose()
+    @ManyToMany(() => TagEntity, (tag) => tag.posts, {
+        cascade: true,
+    })
+    @JoinTable()
+    tags: Relation<TagEntity>[];
+
+    @OneToMany(() => CommentEntity, (comment) => comment.post, {
+        cascade: true,
+    })
+    comments: Relation<CommentEntity>[];
 }

@@ -8,6 +8,7 @@ export class AppIntercepter extends ClassSerializerInterceptor {
         response: PlainLiteralObject | Array<PlainLiteralObject>,
         options: ClassTransformOptions,
     ): PlainLiteralObject | PlainLiteralObject[] {
+        console.log(response, 'res', this.transformToPlain(response, options));
         if ((!isObject(response) && !isArray(response)) || response instanceof StreamableFile) {
             return response;
         }
@@ -21,6 +22,7 @@ export class AppIntercepter extends ClassSerializerInterceptor {
         // 如果是分页数据,则对items中的每一项进行序列化
         if ('meta' in response && 'items' in response) {
             const items = !isNil(response.items) && isArray(response.items) ? response.items : [];
+
             return {
                 ...response,
                 items: (items as PlainLiteralObject[]).map((item) => {
