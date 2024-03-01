@@ -7,9 +7,12 @@ import {
     Param,
     Patch,
     Post,
+    ValidationPipe,
 } from '@nestjs/common';
 import { isNil } from 'lodash';
 
+import { CreatePostDto } from '../dtos/create-post.dto';
+import { UpdatePostDto } from '../dtos/update-post.dto';
 import { PostEntity } from '../types';
 
 let posts: PostEntity[] = [
@@ -36,7 +39,18 @@ export class PostController {
     }
 
     @Post()
-    async store(@Body() data: PostEntity) {
+    async store(
+        @Body(
+            new ValidationPipe({
+                transform: true,
+                forbidNonWhitelisted: true,
+                forbidUnknownValues: true,
+                validationError: { target: false },
+                groups: ['create'],
+            }),
+        )
+        data: CreatePostDto,
+    ) {
         const p: PostEntity = {
             id: Math.max(...posts.map((item) => item.id + 1)),
             ...data,
@@ -45,7 +59,18 @@ export class PostController {
     }
 
     @Patch()
-    async update(@Body() data: PostEntity) {
+    async update(
+        @Body(
+            new ValidationPipe({
+                transform: true,
+                forbidNonWhitelisted: true,
+                forbidUnknownValues: true,
+                validationError: { target: false },
+                groups: ['update'],
+            }),
+        )
+        data: UpdatePostDto,
+    ) {
         let toUpdate = posts.find((item) => item.id === Number(data.id));
         if (isNil(toUpdate)) throw new NotFoundException(`the post with id ${data.id} not exits!`);
         toUpdate = { ...toUpdate, ...data };
